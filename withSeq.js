@@ -50,8 +50,15 @@ bookapp.use(cros())
 //     console.log("listend")
 // })
 
+const path=require('path')
 const sequelize=require('./database');
 const book=require('./table');  
+bookapp.use(express.static(path.join(__dirname, 'public')));
+
+bookapp.get('/',(req,res)=>{
+    res.sendFile(path.join(__dirname, 'book.html'));
+    
+})
 
 
 bookapp.use(bodyParser.json())

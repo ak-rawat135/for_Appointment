@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>book A Appointment </h1>
+    <form id="bookapp">
+        <label for="username">Name:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required>
+        <label for="phone">Phone:</label>
+        <input type="number" id="phone" name="phone" required>
+        <button type="submit">Submit</button>
+    </form>
+    <hr>
+    <h3>These are the appointments:</h3>
+    <ul id="appointments">
+
+    </ul>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script>
+    
+    const form =document.getElementById('bookapp')
+    const appointments=document.getElementById('appointments');
+    form.addEventListener('submit',(event)=>{
+        event.preventDefault();
+        const name=document.getElementById('username').value;
+        const email=document.getElementById('email').value;
+        const phone=document.getElementById('phone').value;
+        let myobj={
+            username:name,
+            useremail:email,
+            userphone:phone
+        }
+        document.getElementById('username').value='';
+        document.getElementById('email').value='';
+        document.getElementById('phone').value='';
+        axios.post('http://localhost:8000/book',myobj)
+        .then(result=>{
+            console.log(result)
+            fetchDeatils()
+        }).catch(err=>{
+            console.log('not able to sent to post request ')
+        })
+    })
+    function fetchDeatils(){
+        axios.get('http://localhost:8000/bookings').then(res=>{
+            console.log('in get ')
+            display(res.data)
+        }).catch(err=>{
+            console.log("not able to send get request ")
+        })
+    }
+    function display(obj){
+        const ul=document.getElementById('appointments')
+        ul.innerHTML=""
+        obj.forEach(myobj => {
+            const deletebtn=document.createElement('button');
+            deletebtn.textContent="Delete"
+            const editbtn=document.createElement('button');
+            editbtn.textContent="Edit"
+            const li=document.createElement('li');
+            li.innerHTML=`-${myobj.name}-${myobj.email}-${myobj.phone}`;
+            li.appendChild(deletebtn);
+            li.appendChild(editbtn);
+            ul.appendChild(li)
+            deletebtn.addEventListener("click",()=>{
+                Delete(myobj.id)
+            })
+            editbtn.addEventListener('click',()=>{
+                Edit(myobj)
+            })
+        });
+        function Delete(id){
+            axios.delete(`http://localhost:8000/bookings/${id}`).then(result=>{
+                console.log(result)
+                fetchDeatils()
+            }
+            ).catch(err=>{
+                console.log(err)
+            })
+        }
+        function Edit(myobj){
+            document.getElementById('username').value=myobj.name;
+            document.getElementById('email').value=myobj.email;
+            document.getElementById('phone').value=myobj.phone;
+            const id=myobj.id
+            axios.delete(`http://localhost:8000/bookings/${id}`).then(result=>{
+                console.log(result)
+                fetchDeatils()
+            }
+            ).catch(err=>{
+                console.log(err)
+            })
+        }
+        
+        //console.log(myobj)
+    }
+    
+    
+</script>
+</html>
